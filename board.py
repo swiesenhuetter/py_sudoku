@@ -20,3 +20,14 @@ class Board:
 
     def box(self, row, col):
         return self.boxes[(row // 3) * 3 + col // 3]
+
+    @classmethod
+    def from_string(cls, string):
+        cells = []
+        for c in string:
+            if c not in "123456789":
+                cells.append(0)
+            else:
+                cells.append(int(c))
+        return cls(cells)
+
