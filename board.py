@@ -6,6 +6,16 @@ class Board:
         else:
             self.cells = [0] * 81
 
+    @classmethod
+    def from_string(cls, string):
+        cells = []
+        for c in string:
+            if c not in "123456789":
+                cells.append(set(range(1, 10)))
+            else:
+                cells.append(int(c))
+        return cls(cells)
+
     @property
     def rows(self):
         return [self.cells[i:i+9] for i in range(0, 81, 9)]
@@ -21,13 +31,16 @@ class Board:
     def box(self, row, col):
         return self.boxes[(row // 3) * 3 + col // 3]
 
-    @classmethod
-    def from_string(cls, string):
-        cells = []
-        for c in string:
-            if c not in "123456789":
-                cells.append(0)
-            else:
-                cells.append(int(c))
-        return cls(cells)
-
+    def solve(self):
+        for row in range(9):
+            for col in range(9):
+                cell = self.cells[row*9+col]
+                if type(cell) == list:
+                    for val in range(1, 10):
+                        if self.is_valid(row, col, val):
+                            self.cells[row*9+col] = val
+                            if self.solve():
+                                return True
+                            self.cells[row*9+col] = 0
+                    return False
+        return True

@@ -15,6 +15,7 @@ def test_boxes():
 def test_from_string():
     board = Board.from_string("123456789" * 9)
     assert board.rows[0] == list(range(1, 10))
+    assert board.rows[0] == board.rows[8]
 
     s1 = "    5 3  " \
          "96  8    " \
@@ -27,5 +28,8 @@ def test_from_string():
          " 78     5"
 
     board = Board.from_string(s1)
-    assert board.rows[0] == [0, 0, 0, 0, 5, 0, 3, 0, 0]
+    assert len(board.rows[0]) == 9
+    assert board.rows[0][4] == 5
+    assert board.rows[0][6] == 3
+    assert board.rows[0][0] == set(range(1, 10))
 
