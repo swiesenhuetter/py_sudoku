@@ -32,15 +32,18 @@ class Board:
         return self.boxes[(row // 3) * 3 + col // 3]
 
     def solve(self):
+        found_something = False
         for row in range(9):
             for col in range(9):
                 cell = self.cells[row*9+col]
-                if type(cell) == list:
-                    for val in range(1, 10):
-                        if self.is_valid(row, col, val):
-                            self.cells[row*9+col] = val
-                            if self.solve():
-                                return True
-                            self.cells[row*9+col] = 0
-                    return False
-        return True
+                if type(cell) == set:
+                    cell -= {num for num in self.rows[row] if type(num) == int}
+                    cell -= {num for num in self.columns[col] if type(num) == int}
+                    cell -= {num for num in self.box(row, col) if type(num) == int}
+                    if len(cell) == 1:
+                        self.cells[row*9+col] = cell.pop()
+                        found_something = True
+        if found_something:
+            self.solve()
+        else:
+            print(self)
