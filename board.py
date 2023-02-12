@@ -31,8 +31,14 @@ class Board:
     def box(self, row, col):
         return self.boxes[(row // 3) * 3 + col // 3]
 
+    def __str__(self):
+        result = ""
+        for row in self.rows:
+            result += " ".join(str(cell) for cell in row) + "\n"
+        return result
+
     def solve(self):
-        found_something = False
+        made_progress = False
         for row in range(9):
             for col in range(9):
                 cell = self.cells[row*9+col]
@@ -42,8 +48,8 @@ class Board:
                     cell -= {num for num in self.box(row, col) if type(num) == int}
                     if len(cell) == 1:
                         self.cells[row*9+col] = cell.pop()
-                        found_something = True
-        if found_something:
+                        made_progress = True
+        if made_progress:
             self.solve()
         else:
-            print(self)
+            return

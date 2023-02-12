@@ -41,4 +41,27 @@ def test_solve(difficult_board):
 
     difficult_board.solve()
 
+@fixture
+def simple_board():
+    s1 = "53-" "-7-" "---"\
+         "6--" "195" "---"\
+         "-98" "---" "-6-"\
+         "8--" "-6-" "--3"\
+         "4--" "8-3" "--1"\
+         "7--" "-2-" "--6"\
+         "-6-" "---" "28-"\
+         "---" "419" "--5"\
+         "---" "-8-" "-79"
+    return Board.from_string(s1)
+
+def test_solve_simple(simple_board):
+    assert len(simple_board.rows[0]) == 9
+    assert simple_board.rows[0][0] == 5
+    assert simple_board.rows[0][4] == 7
+    assert simple_board.rows[8][6] == set(range(1, 10))
+
+    simple_board.solve()
+    print(f"\n{simple_board}")
+
+
 
