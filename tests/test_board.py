@@ -40,6 +40,7 @@ def test_solve(difficult_board):
     assert difficult_board.rows[0][0] == set(range(1, 10))
 
     difficult_board.solve()
+    print(f"\n{difficult_board}")
 
 @fixture
 def simple_board():

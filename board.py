@@ -34,7 +34,12 @@ class Board:
     def __str__(self):
         result = ""
         for row in self.rows:
-            result += " ".join(str(cell) for cell in row) + "\n"
+            for cell in row:
+                if type(cell) == set:
+                    result += "- "
+                else:
+                    result += f"{str(cell)} "
+            result += "\n"
         return result
 
     def solve(self):
