@@ -42,6 +42,18 @@ def test_solve(difficult_board):
     difficult_board.solve()
     print(f"\n{difficult_board}")
 
+def test_locate_least_options(difficult_board):
+    row, col = difficult_board.locate_least_options()
+    assert len(difficult_board.rows[row][col]) == 9
+    difficult_board.solve()
+    row, col = difficult_board.locate_least_options()
+    assert len(difficult_board.rows[row][col]) == 2
+
+def test_is_solved(simple_board):
+    assert not simple_board.is_solved()
+    simple_board.solve()
+    assert simple_board.is_solved()
+
 @fixture
 def simple_board():
     s1 = "53-" "-7-" "---"\

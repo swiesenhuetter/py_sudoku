@@ -58,3 +58,24 @@ class Board:
             self.solve()
         else:
             return
+
+    def locate_least_options(self):
+        min_options = 9
+        min_row = 0
+        min_col = 0
+        for row in range(9):
+            for col in range(9):
+                cell = self.cells[row*9+col]
+                if type(cell) == set:
+                    if len(cell) < min_options:
+                        min_options = len(cell)
+                        min_row = row
+                        min_col = col
+        return min_row, min_col
+
+    def is_solved(self):
+        for row in self.rows:
+            for cell in row:
+                if type(cell) == set:
+                    return False
+        return True
