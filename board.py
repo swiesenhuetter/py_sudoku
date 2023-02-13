@@ -60,7 +60,7 @@ class Board:
             return
 
     def locate_least_options(self):
-        min_options = 9
+        min_options = 10
         min_row = 0
         min_col = 0
         for row in range(9):
@@ -71,6 +71,8 @@ class Board:
                         min_options = len(cell)
                         min_row = row
                         min_col = col
+        if min_options == 10:
+            return None, None
         return min_row, min_col
 
     def is_solved(self):

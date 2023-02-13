@@ -77,4 +77,22 @@ def test_solve_simple(simple_board):
     print(f"\n{simple_board}")
 
 
+@fixture
+def arto_inkala_board():
+    s1 = "8--" "---" "---"\
+         "--3" "6--" "---"\
+         "-7-" "-9-" "2--"\
+         "-5-" "--7" "---"\
+         "---" "-45" "7--"\
+         "---" "1--" "-3-"\
+         "--1" "---" "-68"\
+         "--8" "5--" "-1-"\
+         "-9-" "---" "4--"
+    return Board.from_string(s1)
 
+def test_solve_simple(arto_inkala_board):
+    arto_inkala_board.solve()
+    print(f"\n{arto_inkala_board}")
+
+    Board.back_tracking_solver(arto_inkala_board)
+    print(f"\n{arto_inkala_board}")
