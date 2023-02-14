@@ -54,6 +54,9 @@ class Board:
                     if len(cell) == 1:
                         self.cells[row*9+col] = cell.pop()
                         made_progress = True
+                    if not cell:
+                        raise ValueError("No solution")
+
         if made_progress:
             self.solve()
         else:
@@ -81,3 +84,27 @@ class Board:
                 if type(cell) == set:
                     return False
         return True
+
+    def back_tracking_solver(self):
+        for cell in range(81):
+            if type(self.cells[cell]) == int:
+                continue
+            options = self.cells[cell]
+            if len(options) == 0:
+                return  # no solution
+
+            for num in options:
+                sudoku_copy = Board(self.cells.copy())
+                sudoku_copy.cells[cell] = num
+                try:
+                    sudoku_copy.solve()
+                except ValueError:
+                    print(f"No solution with {num} in line {cell//9}, col {cell%9}")
+                    continue
+                if sudoku_copy.is_solved():
+                    self.cells = sudoku_copy.cells
+                    return
+                else:
+                    sudoku_copy.back_tracking_solver()
+
+

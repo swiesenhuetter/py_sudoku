@@ -90,7 +90,7 @@ def arto_inkala_board():
          "-9-" "---" "4--"
     return Board.from_string(s1)
 
-def test_solve_simple(arto_inkala_board):
+def test_solve_inkala(arto_inkala_board):
     arto_inkala_board.solve()
     print(f"\n{arto_inkala_board}")
 
