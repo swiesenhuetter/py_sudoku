@@ -66,6 +66,7 @@ class Board(QObject):
                         self.cells[row*9+col] = cell.pop()
                     elif len(cell) < len(orig_val):
                         made_progress = True
+                        self.change.emit()
                     if not self.cells[row*9+col]:
                         raise ValueError("No solution")
 
