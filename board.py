@@ -1,6 +1,10 @@
+from PySide6.QtCore import QObject, Signal
 
-class Board:
+class Board(QObject):
+    change = Signal()
+
     def __init__(self, cells=None):
+        super().__init__()
         if cells:
             self.cells = cells
         else:
@@ -15,6 +19,12 @@ class Board:
             else:
                 cells.append(int(c))
         return cls(cells)
+
+    @classmethod
+    def from_file(cls, path):
+        with open(path) as file:
+            content = file.read()
+        return cls.from_string(eval(content))
 
     @property
     def rows(self):
@@ -48,13 +58,15 @@ class Board:
             for col in range(9):
                 cell = self.cells[row*9+col]
                 if type(cell) == set:
+                    orig_val = cell.copy()
                     cell -= {num for num in self.rows[row] if type(num) == int}
                     cell -= {num for num in self.columns[col] if type(num) == int}
                     cell -= {num for num in self.box(row, col) if type(num) == int}
                     if len(cell) == 1:
                         self.cells[row*9+col] = cell.pop()
+                    elif len(cell) < len(orig_val):
                         made_progress = True
-                    if not cell:
+                    if not self.cells[row*9+col]:
                         raise ValueError("No solution")
 
         if made_progress:
