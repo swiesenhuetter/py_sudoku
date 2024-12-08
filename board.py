@@ -1,10 +1,14 @@
 from PySide6.QtCore import QObject, Signal
+import threading
+import time
+
 
 class Board(QObject):
     change = Signal()
 
     def __init__(self, cells=None):
         super().__init__()
+        self.worker = None
         if cells:
             self.cells = cells
         else:
@@ -52,6 +56,11 @@ class Board(QObject):
             result += "\n"
         return result
 
+    def solve_background(self):
+        self.worker = threading.Thread(target=self.solve,
+                                       name="Sudoku Solver")
+        self.worker.start()
+
     def solve(self):
         made_progress = False
         for row in range(9):
@@ -64,15 +73,23 @@ class Board(QObject):
                     cell -= {num for num in self.box(row, col) if type(num) == int}
                     if len(cell) == 1:
                         self.cells[row*9+col] = cell.pop()
+                        if orig_val != cell:
+                            made_progress = True
                     elif len(cell) < len(orig_val):
                         made_progress = True
+                    if made_progress:
                         self.change.emit()
+                        time.sleep(0.05)
                     if not self.cells[row*9+col]:
                         raise ValueError("No solution")
 
         if made_progress:
             self.solve()
         else:
+            if self.is_solved():
+                print("Solved")
+            else:
+                print("No more progress")
             return
 
     def locate_least_options(self):
@@ -94,7 +111,7 @@ class Board(QObject):
     def is_solved(self):
         for row in self.rows:
             for cell in row:
-                if type(cell) == set:
+                if type(cell) != int:
                     return False
         return True
 

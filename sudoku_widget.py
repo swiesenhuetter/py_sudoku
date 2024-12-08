@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QGridLayout, QLineEdit, QPushButton, QVBoxLayout, QFileDialog
 )
-from PySide6.QtGui import QIntValidator
+from PySide6.QtGui import QIntValidator, QColor
 from PySide6.QtCore import Qt
 from board import Board
+
 
 class SudokuWidget(QWidget):
     def __init__(self):
@@ -67,10 +68,9 @@ class SudokuWidget(QWidget):
         cell.setStyleSheet(base_style)
 
     def solve(self):
-        # Placeholder for solver logic
         print("Solve button pressed")
         try:
-            self.board.solve()
+            self.board.solve_background()
         except ValueError:
             print("No solution")
         self.update_ui()
@@ -102,8 +102,11 @@ class SudokuWidget(QWidget):
             for col in range(9):
                 value = self.board.cells[row*9+col]
                 if type(value) == set:
+                    grey_level = 255 - len(value) * 20
+                    bg_col = QColor(grey_level, grey_level, grey_level)
+
                     self.cells[row][col].setText("")
-                    self.cells[row][col].setStyleSheet("background-color: lightcoral;")
+                    self.cells[row][col].setStyleSheet(f"background-color: {bg_col.name()};")
                     self.cells[row][col].setToolTip(", ".join(str(num) for num in value))
                 else:
                     self.cells[row][col].setText(str(value) if value != 0 else "")
