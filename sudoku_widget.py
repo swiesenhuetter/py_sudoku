@@ -100,17 +100,18 @@ class SudokuWidget(QWidget):
         """Update the UI based on the model data."""
         for row in range(9):
             for col in range(9):
+                style = self.cells[row][col].styleSheet()
                 value = self.board.cells[row*9+col]
                 if type(value) == set:
                     grey_level = 255 - len(value) * 20
                     bg_col = QColor(grey_level, grey_level, grey_level)
 
                     self.cells[row][col].setText("")
-                    self.cells[row][col].setStyleSheet(f"background-color: {bg_col.name()};")
+                    self.cells[row][col].setStyleSheet(f"{style} background-color: {bg_col.name()};")
                     self.cells[row][col].setToolTip(", ".join(str(num) for num in value))
                 else:
                     self.cells[row][col].setText(str(value) if value != 0 else "")
-                    self.cells[row][col].setStyleSheet("background-color: lightgreen;")
+                    self.cells[row][col].setStyleSheet(f"{style} background-color: lightgreen;")
                     self.cells[row][col].setToolTip("solved")
 
 

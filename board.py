@@ -79,7 +79,7 @@ class Board(QObject):
                         made_progress = True
                     if made_progress:
                         self.change.emit()
-                        time.sleep(0.05)
+                        time.sleep(0.005)
                     if not self.cells[row*9+col]:
                         raise ValueError("No solution")
 
