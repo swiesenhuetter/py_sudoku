@@ -83,7 +83,10 @@ class SudokuWidget(QWidget):
 
     def validate_grid(self):
         # Placeholder for validation logic
-        print("Validate button pressed")
+        if self.board.validate():
+            print("Valid solution")
+        else:
+            print("Invalid solution or unsolved")
 
     def load_from_file(self):
         # txt files only

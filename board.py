@@ -81,16 +81,19 @@ class Board(QObject):
                         self.change.emit()
                         time.sleep(0.005)
                     if not self.cells[row*9+col]:
-                        raise ValueError("No solution")
+                        #raise ValueError("No solution")
+                        return False
 
         if made_progress:
-            self.solve()
+            result = self.solve()
         else:
             if self.is_solved():
                 print("Solved")
+                return True
             else:
                 print("No more progress")
-            return
+                return False
+        return result
 
     def locate_least_options(self):
         min_options = 10
@@ -116,25 +119,43 @@ class Board(QObject):
         return True
 
     def back_tracking_solver(self):
-        for cell in range(81):
-            if type(self.cells[cell]) == int:
-                continue
-            options = self.cells[cell]
-            if len(options) == 0:
-                return  # no solution
+        if self.solve():
+            return True
+        else:
+            row, col = self.locate_least_options()
+            if row is None:
+                return True
+            cell = self.cells[row*9+col]
+            for num in cell:
+                board_copy = Board(self.cells.copy())
+                board_copy.cells[row*9+col] = num
+                self.change.emit()
+                if board_copy.back_tracking_solver():
+                    return True
+            return False
 
-            for num in options:
-                sudoku_copy = Board(self.cells.copy())
-                sudoku_copy.cells[cell] = num
-                try:
-                    sudoku_copy.solve()
-                except ValueError:
-                    print(f"No solution with {num} in line {cell//9}, col {cell%9}")
-                    continue
-                if sudoku_copy.is_solved():
-                    self.cells = sudoku_copy.cells
-                    return
-                else:
-                    sudoku_copy.back_tracking_solver()
+    def validate(self):
+        for cell in self.cells:
+            if type(cell) != int:
+                return False
 
-
+        nums = list(range(1, 10))
+        for row in self.rows:
+            ro = list(row)
+            if len(ro) != 9:
+                return False
+            if sorted(ro) != nums:
+                return False
+        for col in self.columns:
+            co = list(col)
+            if len(co) != 9:
+                return False
+            if sorted(co) != nums:
+                return False
+        for box in self.boxes:
+            qu = list(box)
+            if len(qu) != 9:
+                return False
+            if sorted(qu) != nums:
+                return False
+        return True
