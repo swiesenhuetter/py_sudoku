@@ -62,6 +62,7 @@ class Board(QObject):
         self.worker.start()
 
     def solve(self):
+        result = False
         made_progress = False
         for row in range(9):
             for col in range(9):
@@ -81,18 +82,21 @@ class Board(QObject):
                         self.change.emit()
                         time.sleep(0.005)
                     if not self.cells[row*9+col]:
-                        #raise ValueError("No solution")
+                        print("No solution")
                         return False
 
         if made_progress:
             result = self.solve()
         else:
             if self.is_solved():
+                result = True
                 print("Solved")
                 return True
             else:
                 print("No more progress")
                 return False
+        return result
+
         return result
 
     def locate_least_options(self):
@@ -119,20 +123,18 @@ class Board(QObject):
         return True
 
     def back_tracking_solver(self):
-        if self.solve():
-            return True
-        else:
+        result = self.solve()
+        if not result:
             row, col = self.locate_least_options()
             if row is None:
-                return True
-            cell = self.cells[row*9+col]
-            for num in cell:
+                return False
+            for guess in self.cells[row*9+col]:
                 board_copy = Board(self.cells.copy())
-                board_copy.cells[row*9+col] = num
-                self.change.emit()
+                board_copy.cells[row*9+col] = guess
                 if board_copy.back_tracking_solver():
+                    self.cells = board_copy.cells
                     return True
-            return False
+        return result
 
     def validate(self):
         for cell in self.cells:

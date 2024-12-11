@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QIntValidator, QColor
 from PySide6.QtCore import Qt
 from board import Board
+from functools import partial
 
 
 class SudokuWidget(QWidget):
@@ -16,6 +17,12 @@ class SudokuWidget(QWidget):
         self.board.change.connect(self.update_ui)
         self.init_ui()
 
+    def on_edit_finished(self, row, col):
+        data = self.cells[row][col].text()
+        print(f"Editing finished {row}, {col}, {data}")
+        self.board.cells[row*9+col] = int(data) if data else 0
+
+
     def init_ui(self):
         # Create Sudoku Grid
         for row in range(9):
@@ -24,6 +31,9 @@ class SudokuWidget(QWidget):
                 cell.setFixedSize(40, 40)
                 cell.setAlignment(Qt.AlignCenter)
                 cell.setValidator(QIntValidator(1, 9))  # Only numbers 1–9
+
+                cell.editingFinished.connect(partial(self.on_edit_finished, row, col))
+
                 self.style_cell(cell, row, col)
                 self.grid_layout.addWidget(cell, row, col)
                 self.cells[row][col] = cell
