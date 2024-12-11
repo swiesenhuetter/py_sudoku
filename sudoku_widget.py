@@ -87,9 +87,8 @@ class SudokuWidget(QWidget):
 
     def clear_grid(self):
         """Clear all cells."""
-        for row in range(9):
-            for col in range(9):
-                self.cells[row][col].clear()
+        self.board = Board()
+        self.update_ui()
 
     def validate_grid(self):
         # Placeholder for validation logic
@@ -124,7 +123,9 @@ class SudokuWidget(QWidget):
                     self.cells[row][col].setToolTip(", ".join(str(num) for num in value))
                 else:
                     self.cells[row][col].setText(str(value) if value != 0 else "")
-                    self.cells[row][col].setStyleSheet(f"{style} background-color: lightgreen;")
+                    cell_color = "lightgray" if value == 0 else "lightgreen"
+
+                    self.cells[row][col].setStyleSheet(f"{style} background-color: {cell_color};")
                     self.cells[row][col].setToolTip("solved")
 
 
