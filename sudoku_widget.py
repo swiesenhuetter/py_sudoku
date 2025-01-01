@@ -22,7 +22,6 @@ class SudokuWidget(QWidget):
         print(f"Editing finished {row}, {col}, {data}")
         self.board.cells[row*9+col] = int(data) if data else 0
 
-
     def init_ui(self):
         # Create Sudoku Grid
         for row in range(9):
@@ -107,6 +106,10 @@ class SudokuWidget(QWidget):
         self.board = Board.from_file(file_path)
         self.board.change.connect(self.update_ui)
         self.board.change.emit()
+
+    def closeEvent(self, event):
+        Board.stop = True
+        event.accept()
 
     def update_ui(self):
         """Update the UI based on the model data."""

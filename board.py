@@ -1,10 +1,18 @@
 from PySide6.QtCore import QObject, Signal
 import threading
+from collections import deque
+from enum import Enum
 import time
+
+class Result(Enum):
+    SOLVED: int = 1
+    NO_SOLUTION: int = 2
+    NO_PROGRESS: int = 3
 
 
 class Board(QObject):
     change = Signal()
+    stop = False
 
     def __init__(self, cells=None):
         super().__init__()
@@ -61,8 +69,8 @@ class Board(QObject):
                                        name="Sudoku Solver")
         self.worker.start()
 
-    def solve(self):
-        result = False
+    def solve(self) -> Result:
+        result = Result.NO_SOLUTION
         made_progress = False
         for row in range(9):
             for col in range(9):
@@ -83,20 +91,17 @@ class Board(QObject):
                         time.sleep(0.005)
                     if not self.cells[row*9+col]:
                         print("No solution")
-                        return False
+                        return Result.NO_SOLUTION
 
         if made_progress:
             result = self.solve()
         else:
             if self.is_solved():
-                result = True
                 print("Solved")
-                return True
+                return Result.SOLVED
             else:
                 print("No more progress")
-                return False
-        return result
-
+                return Result.NO_PROGRESS
         return result
 
     def locate_least_options(self):
@@ -107,7 +112,7 @@ class Board(QObject):
             for col in range(9):
                 cell = self.cells[row*9+col]
                 if type(cell) == set:
-                    if len(cell) < min_options:
+                    if len(cell) < min_options and len(cell) > 1:
                         min_options = len(cell)
                         min_row = row
                         min_col = col
@@ -124,16 +129,6 @@ class Board(QObject):
 
     def back_tracking_solver(self):
         result = self.solve()
-        if not result:
-            row, col = self.locate_least_options()
-            if row is None:
-                return False
-            for guess in self.cells[row*9+col]:
-                board_copy = Board(self.cells.copy())
-                board_copy.cells[row*9+col] = guess
-                if board_copy.back_tracking_solver():
-                    self.cells = board_copy.cells
-                    return True
         return result
 
     def validate(self):
