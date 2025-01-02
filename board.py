@@ -1,3 +1,5 @@
+import copy
+
 from PySide6.QtCore import QObject, Signal
 import threading
 from collections import deque
@@ -65,7 +67,7 @@ class Board(QObject):
         return result
 
     def solve_background(self):
-        self.worker = threading.Thread(target=self.solve,
+        self.worker = threading.Thread(target=self.back_tracking_solver,
                                        name="Sudoku Solver")
         self.worker.start()
 
@@ -88,7 +90,7 @@ class Board(QObject):
                         made_progress = True
                     if made_progress:
                         self.change.emit()
-                        time.sleep(0.005)
+                        time.sleep(0.001)
                     if not self.cells[row*9+col]:
                         print("No solution")
                         return Result.NO_SOLUTION
@@ -128,7 +130,27 @@ class Board(QObject):
         return True
 
     def back_tracking_solver(self):
-        result = self.solve()
+        result = Result.NO_PROGRESS
+        unexplored = [copy.deepcopy(self.cells)]
+        while not self.stop and result != Result.SOLVED:
+            if not unexplored:
+                break
+            self.cells = unexplored.pop()
+            self.change.emit()
+            result = self.solve()
+            if result == Result.NO_PROGRESS:
+                row, col = self.locate_least_options()
+                cell = self.cells[row * 9 + col]
+                # remove first option
+                val = cell.pop()
+                cells_copied = copy.deepcopy(self.cells)
+                unexplored.append(cells_copied)
+                self.cells[row * 9 + col] = val
+                unexplored.append(copy.deepcopy(self.cells))
+                self.change.emit()
+                # restore previous state
+            elif result == Result.SOLVED:
+                break
         return result
 
     def validate(self):
