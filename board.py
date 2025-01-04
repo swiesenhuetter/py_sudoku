@@ -6,6 +6,7 @@ from collections import deque
 from enum import Enum
 import time
 
+
 class Result(Enum):
     SOLVED: int = 1
     NO_SOLUTION: int = 2
@@ -42,7 +43,7 @@ class Board(QObject):
 
     @property
     def rows(self):
-        return [self.cells[i:i+9] for i in range(0, 81, 9)]
+        return [self.cells[i:i + 9] for i in range(0, 81, 9)]
 
     @property
     def columns(self):
@@ -50,7 +51,8 @@ class Board(QObject):
 
     @property
     def boxes(self):
-        return [self.cells[i:i+3] + self.cells[i+9:i+12] + self.cells[i+18:i+21] for i in (0, 3, 6, 27, 30, 33, 54, 57, 60)]
+        return [self.cells[i:i + 3] + self.cells[i + 9:i + 12] + self.cells[i + 18:i + 21] for i in
+                (0, 3, 6, 27, 30, 33, 54, 57, 60)]
 
     def box(self, row, col):
         return self.boxes[(row // 3) * 3 + col // 3]
@@ -67,23 +69,40 @@ class Board(QObject):
         return result
 
     def solve_background(self):
-        self.worker = threading.Thread(target=self.back_tracking_solver,
+        self.worker = threading.Thread(target=self.solve,
                                        name="Sudoku Solver")
         self.worker.start()
+
+    def hidden_single(self, row: int, col: int):
+        cell = set(self.cells[row * 9 + col])
+        self.cells[row * 9 + col] = None
+        assert type(cell) == set
+        for num in cell:
+            found = {num in s for s in self.rows[row] if type(s) == set}
+            found &= {num in s for s in self.columns[col] if type(s) == set}
+            found &= {num in s for s in self.box(row, col) if type(s) == set}
+            if not any(found):
+                self.cells[row * 9 + col] = num
+                return True
+        self.cells[row * 9 + col] = cell
+        return False
 
     def solve(self) -> Result:
         result = Result.NO_SOLUTION
         made_progress = False
         for row in range(9):
             for col in range(9):
-                cell = self.cells[row*9+col]
+                cell = self.cells[row * 9 + col]
                 if type(cell) == set:
                     orig_val = cell.copy()
                     cell -= {num for num in self.rows[row] if type(num) == int}
                     cell -= {num for num in self.columns[col] if type(num) == int}
                     cell -= {num for num in self.box(row, col) if type(num) == int}
+
+                    self.hidden_single(row, col)
+
                     if len(cell) == 1:
-                        self.cells[row*9+col] = cell.pop()
+                        self.cells[row * 9 + col] = cell.pop()
                         if orig_val != cell:
                             made_progress = True
                     elif len(cell) < len(orig_val):
@@ -91,7 +110,7 @@ class Board(QObject):
                     if made_progress:
                         self.change.emit()
                         time.sleep(0.001)
-                    if not self.cells[row*9+col]:
+                    if not self.cells[row * 9 + col]:
                         print("No solution")
                         return Result.NO_SOLUTION
 
@@ -112,7 +131,7 @@ class Board(QObject):
         min_col = 0
         for row in range(9):
             for col in range(9):
-                cell = self.cells[row*9+col]
+                cell = self.cells[row * 9 + col]
                 if type(cell) == set:
                     if len(cell) < min_options and len(cell) > 1:
                         min_options = len(cell)

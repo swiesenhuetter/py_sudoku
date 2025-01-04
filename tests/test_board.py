@@ -96,3 +96,13 @@ def test_solve_inkala(arto_inkala_board):
 
     Board.back_tracking_solver(arto_inkala_board)
     print(f"\n{arto_inkala_board}")
+
+def test_hidden_singles():
+    empy_board = Board.from_string(" " * 81)
+    result = empy_board.hidden_single(0, 0)
+    assert result == False
+    # remove all 7s from row 0
+    for col in range(1,9):
+        empy_board.cells[col] -= {7}
+    assert empy_board.hidden_single(0, 0)
+    assert empy_board.cells[0] == 7

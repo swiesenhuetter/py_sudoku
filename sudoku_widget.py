@@ -101,6 +101,8 @@ class SudokuWidget(QWidget):
         file_select_dlg = QFileDialog()
         file_select_dlg.setNameFilter("Text files (*.txt)")
         file_select_dlg.exec()
+        if not file_select_dlg.selectedFiles():
+            return
         file_path = file_select_dlg.selectedFiles()[0]
         print(f"Loading from {file_path}")
         self.board = Board.from_file(file_path)
