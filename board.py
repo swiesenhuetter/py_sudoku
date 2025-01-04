@@ -87,6 +87,38 @@ class Board(QObject):
         self.cells[row * 9 + col] = cell
         return False
 
+    def naked_pairs(self, row: int, col: int):
+        try:
+            cell = set(self.cells[row * 9 + col])
+        except TypeError as err:
+            return False
+        if len(cell) != 2:
+            return False
+        self.cells[row * 9 + col] = None
+
+        result = False
+        if cell in self.rows[row]:
+            for c in self.rows[row]:
+                if c != cell and type(c) == set:
+                    c -= cell
+            result = True
+
+        if cell in self.columns[col]:
+            for c in self.columns[col]:
+                if c != cell and type(c) == set:
+                    c -= cell
+
+            result |= True
+
+        if cell in self.box(row, col):
+            for c in self.box(row, col):
+                if c != cell and type(c) == set:
+                    c -= cell
+            result |= True
+
+        self.cells[row * 9 + col] = cell
+        return result
+
     def solve(self) -> Result:
         result = Result.NO_SOLUTION
         made_progress = False
@@ -99,6 +131,7 @@ class Board(QObject):
                     cell -= {num for num in self.columns[col] if type(num) == int}
                     cell -= {num for num in self.box(row, col) if type(num) == int}
 
+                    self.naked_pairs(row, col)
                     self.hidden_single(row, col)
 
                     if len(cell) == 1:

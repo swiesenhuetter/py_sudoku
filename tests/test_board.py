@@ -98,11 +98,22 @@ def test_solve_inkala(arto_inkala_board):
     print(f"\n{arto_inkala_board}")
 
 def test_hidden_singles():
-    empy_board = Board.from_string(" " * 81)
-    result = empy_board.hidden_single(0, 0)
+    empty_board = Board.from_string(" " * 81)
+    result = empty_board.hidden_single(0, 0)
     assert result == False
     # remove all 7s from row 0
     for col in range(1,9):
-        empy_board.cells[col] -= {7}
-    assert empy_board.hidden_single(0, 0)
-    assert empy_board.cells[0] == 7
+        empty_board.cells[col] -= {7}
+    assert empty_board.hidden_single(0, 0)
+    assert empty_board.cells[0] == 7
+
+def test_naked_pairs():
+    empty_board = Board.from_string(" " * 81)
+    result = empty_board.naked_pairs(0, 0)
+    assert result == False
+
+    empty_board.cells[0] = {7, 8}
+    empty_board.cells[1] = {7, 8}
+    assert empty_board.naked_pairs(0, 0)
+    assert empty_board.cells[0] == {7, 8}
+    assert empty_board.cells[1] == {7, 8}
