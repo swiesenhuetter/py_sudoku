@@ -87,6 +87,12 @@ class Board(QObject):
         self.cells[row * 9 + col] = cell
         return False
 
+    def naked_single(self, row: int, col: int):
+        cell = self.cells[row * 9 + col]
+        cell -= {num for num in self.rows[row] if type(num) == int}
+        cell -= {num for num in self.columns[col] if type(num) == int}
+        cell -= {num for num in self.box(row, col) if type(num) == int}
+
     def naked_pairs(self, row: int, col: int):
         try:
             cell = set(self.cells[row * 9 + col])
@@ -127,10 +133,8 @@ class Board(QObject):
                 cell = self.cells[row * 9 + col]
                 if type(cell) == set:
                     orig_val = cell.copy()
-                    cell -= {num for num in self.rows[row] if type(num) == int}
-                    cell -= {num for num in self.columns[col] if type(num) == int}
-                    cell -= {num for num in self.box(row, col) if type(num) == int}
 
+                    self.naked_single(row, col)
                     self.naked_pairs(row, col)
                     self.hidden_single(row, col)
 
@@ -166,7 +170,7 @@ class Board(QObject):
             for col in range(9):
                 cell = self.cells[row * 9 + col]
                 if type(cell) == set:
-                    if len(cell) < min_options and len(cell) > 1:
+                    if min_options > len(cell) > 1:
                         min_options = len(cell)
                         min_row = row
                         min_col = col
