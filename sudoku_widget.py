@@ -105,6 +105,7 @@ class SudokuWidget(QWidget):
             return
         file_path = file_select_dlg.selectedFiles()[0]
         print(f"Loading from {file_path}")
+        self.board.change.disconnect()
         self.board = Board.from_file(file_path)
         self.board.change.connect(self.update_ui)
         self.board.change.emit()
