@@ -159,7 +159,7 @@ class Board(QObject):
                 return Result.SOLVED
             else:
                 print("No more progress")
-                return Result.NO_PROGRESS
+                return self.back_tracking_solver()
         return result
 
     def locate_least_options(self):
@@ -187,25 +187,23 @@ class Board(QObject):
 
     def back_tracking_solver(self):
         result = Result.NO_PROGRESS
-        unexplored = [copy.deepcopy(self.cells)]
+        unknowns = []
         while not self.stop and result != Result.SOLVED:
-            if not unexplored:
-                break
-            self.cells = unexplored.pop()
+            unexplored = copy.deepcopy(self.cells)
+            row, col = self.locate_least_options()
+            guess = unexplored[row * 9 + col].pop()
+            unknowns.append(unexplored)
+            self.cells[row * 9 + col] = guess
             self.change.emit()
-            result = self.solve()
-            if result == Result.NO_PROGRESS:
-                row, col = self.locate_least_options()
-                cell = self.cells[row * 9 + col]
-                # remove first option
-                val = cell.pop()
-                cells_copied = copy.deepcopy(self.cells)
-                unexplored.append(cells_copied)
-                self.cells[row * 9 + col] = val
-                unexplored.append(copy.deepcopy(self.cells))
-                self.change.emit()
-                # restore previous state
-            elif result == Result.SOLVED:
+            for row in range(9):
+                for col in range(9):
+                    cell = self.cells[row * 9 + col]
+                    if type(cell) == set:
+                        self.naked_single(row, col)
+                        self.naked_pairs(row, col)
+                        self.hidden_single(row, col)
+            if self.is_solved():
+                result = Result.SOLVED
                 break
         return result
 
