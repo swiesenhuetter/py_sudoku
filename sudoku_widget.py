@@ -5,6 +5,7 @@ from PySide6.QtGui import QIntValidator, QColor
 from PySide6.QtCore import Qt
 from board import Board
 from functools import partial
+from sudoku_print import generate_sudoku_html
 
 
 class SudokuWidget(QWidget):
@@ -47,16 +48,19 @@ class SudokuWidget(QWidget):
         clear_button = QPushButton("Clear")
         validate_button = QPushButton("Validate")
         load_button = QPushButton("Load from File")
+        html_button = QPushButton("Save to Html")
 
         button_layout.addWidget(solve_button)
         button_layout.addWidget(clear_button)
         button_layout.addWidget(validate_button)
         button_layout.addWidget(load_button)
+        button_layout.addWidget(html_button)
 
         solve_button.clicked.connect(self.solve)
         clear_button.clicked.connect(self.clear_grid)
         validate_button.clicked.connect(self.validate_grid)
         load_button.clicked.connect(self.load_from_file)
+        html_button.clicked.connect(self.to_pdf)
 
         main_layout.addLayout(button_layout)
         self.setLayout(main_layout)
@@ -133,6 +137,14 @@ class SudokuWidget(QWidget):
 
                     self.cells[row][col].setStyleSheet(f"{style} background-color: {cell_color};")
                     self.cells[row][col].setToolTip("solved")
+
+    def to_pdf(self):
+        print("Save to HTML")
+        dlg_res = QFileDialog.getSaveFileName(self, "Save to HTML", "", "HTML Files (*.html)")
+        if dlg_res[0]:
+            lines = str(self.board).split('\n')
+
+            generate_sudoku_html(lines, dlg_res[0])
 
 
 if __name__ == "__main__":
