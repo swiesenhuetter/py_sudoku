@@ -31,24 +31,17 @@ def generate_sudoku_html(sudoku_strings, output_file):
                 border: 1px solid #000;
             }
             /* Edges of the entire Sudoku grid */
-            .outer-right {
+            .bold-right {
                 border-right: 2px solid #000;
             }
-            .outer-bottom {
+            .bold-bottom {
                 border-bottom: 2px solid #000;
             }
-            .outer-left {
+            .bold-left {
                 border-left: 2px solid #000;
             }
-            .outer-top {
+            .bold-top {
                 border-top: 2px solid #000;
-            }
-            /* Inner bold lines to separate 3x3 sections */
-            .inner-right {
-                border-right: 2px solid #000;
-            }
-            .inner-bottom {
-                border-bottom: 2px solid #000;
             }
         </style>
     </head>
@@ -57,33 +50,25 @@ def generate_sudoku_html(sudoku_strings, output_file):
     """
 
     # Construct table rows and cells
-    for row_index, row_values in enumerate(sudoku_strings):
+    for row_index, line in enumerate(sudoku_strings):
         html_content += "<tr>"
-        segments = row_values.replace("\"", "").split()
+        line = line.replace(" ","")
+        for col_index, char in enumerate(line):
 
-        for col_index, segment in enumerate(segments):
-            for i, char in enumerate(segment):
-                # Determine classes for borders
-                border_class = ""
+            # Determine classes for borders
+            border_class = ""
+            # Add outer borders
+            if row_index == 0:
+                border_class += "bold-top "
+            if col_index == 0:
+                border_class += "bold-left "
+            if col_index % 3 == 2:
+                border_class += "bold-right "
+            if row_index % 3 == 2:
+                border_class += "bold-bottom "
 
-                # Add outer borders
-                if row_index == 0:
-                    border_class += "outer-top "
-                if col_index == 0:
-                    border_class += "outer-left "
-                if row_index == 8:
-                    border_class += "outer-bottom "
-                if col_index == 8:
-                    border_class += "outer-right "
-
-                # Add inner bold lines to separate 3x3 blocks
-                if col_index % 3 == 2:
-                    border_class += "inner-right "
-                if row_index % 3 == 2:
-                    border_class += "inner-bottom "
-
-                cell_value = char if char != '-' else '&nbsp;'
-                html_content += f"<td class='{border_class.strip()}'>{cell_value}</td>"
+            cell_value = char if char != '-' else '&nbsp;'
+            html_content += f"<td class='{border_class.strip()}'>{cell_value}</td>"
         html_content += "</tr>"
 
     # Close the HTML
