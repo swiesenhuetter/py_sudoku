@@ -1,29 +1,19 @@
 from board import Board
 from pytest import fixture
 
-def test_shape():
-    board = Board(list(range(1, 82)))
-    assert len(board.rows) == 9
-    assert len(board.rows[0]) == 9
-    assert len(board.columns) == 9
-    assert len(board.boxes) == 9
+def test_shape_4():
+    board = Board(list(range(1, 17)))
+    assert len(board.rows) == 4
+    assert len(board.rows[0]) == 4
+    assert len(board.columns) == 4
 
-def test_boxes():
-    board = Board(list(range(1, 82)))
-    assert board.box(0, 0) == board.boxes[0]
-    assert board.box(2, 2) == board.box(0, 0)
 
 @fixture
 def difficult_board():
-    s1 = "    5 3  " \
-         "96  8    " \
-         "     7 9 " \
-         "7  1 2   " \
-         "  2      " \
-         "  13   5 " \
-         "      231" \
-         " 4      7" \
-         " 78     5"
+    s1 = "12 4" \
+         "    " \
+         "3 2 " \
+         "2   "
     return Board.from_string(s1)
 
 

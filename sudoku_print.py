@@ -62,9 +62,9 @@ def generate_sudoku_html(sudoku_strings, output_file):
                 border_class += "bold-top "
             if col_index == 0:
                 border_class += "bold-left "
-            if col_index % 3 == 2:
+            if col_index % 4 == 3:
                 border_class += "bold-right "
-            if row_index % 3 == 2:
+            if row_index % 4 == 3:
                 border_class += "bold-bottom "
 
             cell_value = char if char != '-' else '&nbsp;'
