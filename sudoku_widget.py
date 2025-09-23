@@ -70,13 +70,13 @@ class SudokuWidget(QWidget):
         base_style = "border: 1px solid #aaa;"
 
         # Add thicker borders for 3x3 subgrid separators
-        if row % 3 == 0:  # Top border
+        if row % 4 == 0:  # Top border
             base_style += "border-top: 2px solid black;"
-        if col % 3 == 0:  # Left border
+        if col % 4 == 0:  # Left border
             base_style += "border-left: 2px solid black;"
-        if row % 3 == 2:  # Bottom border for last row
+        if row % 4 == 3:  # Bottom border for last row
             base_style += "border-bottom: 2px solid black;"
-        if col % 3 == 2:  # Right border for last column
+        if col % 4 == 3:  # Right border for last column
             base_style += "border-right: 2px solid black;"
         cell.setStyleSheet(base_style)
 

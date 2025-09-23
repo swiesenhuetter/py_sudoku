@@ -146,7 +146,7 @@ class Board(QObject):
                     orig_val = cell.copy()
 
                     # try solving cell with three methods
-                    made_progress = self.naked_single(row, col)
+                    made_progress |= self.naked_single(row, col)
                     made_progress |= self.naked_pairs(row, col)
                     made_progress |= self.hidden_single(row, col)
 
