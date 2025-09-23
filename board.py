@@ -49,6 +49,16 @@ class Board(QObject):
     def columns(self):
         return [self.cells[i::4] for i in range(4)]
 
+    @staticmethod
+    def get_index(row: int, col: int) -> int:
+        return row * 4 + col
+
+    def get_cell(self, row: int, col: int):
+        return self.cells[self.get_index(row, col)]
+
+    def set_cell(self, row: int, col: int, value):
+        self.cells[self.get_index(row, col)] = value
+
     def __str__(self):
         result = ""
         for row in self.rows:
@@ -66,9 +76,11 @@ class Board(QObject):
         self.worker.start()
 
     def hidden_single(self, row: int, col: int):
+        if type(self.cells[row * 4 + col]) != set:
+            return False
+        # is there a number that only exists in this cell but nowhere else in the row or column?
         cell = set(self.cells[row * 4 + col])
         self.cells[row * 4 + col] = None
-        assert type(cell) == set
         for num in cell:
             found = {num in s for s in self.rows[row] if type(s) == set}
             found &= {num in s for s in self.columns[col] if type(s) == set}
@@ -78,14 +90,16 @@ class Board(QObject):
         self.cells[row * 4 + col] = cell
         return False
 
-    def naked_single(self, row: int, col: int):
+    def naked_single(self, row: int, col: int) -> bool:
         cell = self.cells[row * 4 + col]
         line_found = {num for num in self.rows[row] if type(num) == int}
         col_found = {num for num in self.columns[col] if type(num) == int}
         cell -= line_found
         cell -= col_found
+        return self.clean_up()
 
-    def naked_pairs(self, row: int, col: int):
+    def naked_pairs(self, row: int, col: int) -> bool:
+        success = False
         # does this line have 2 equal sets of size 2?
         other_cells = [self.cells[row * 4 + c] for c in range(4) if c != col]
         two_element_sets = [s for s in other_cells if type(s) == set and len(s) == 2]
@@ -96,6 +110,7 @@ class Board(QObject):
             for s in two_equals:
                 if type(cell) == set and len(cell) > 2:
                     cell -= s
+                    success = True
             self.cells[row * 4 + col] = cell
         # does this column have 2 equal sets of size 2?
         other_cells = [self.cells[r * 4 + col] for r in range(4) if r != row]
@@ -107,7 +122,19 @@ class Board(QObject):
             for s in two_equals:
                 if type(cell) == set and len(cell) > 2:
                     cell -= s
+                    success = True
             self.cells[row * 4 + col] = cell
+        success |= self.clean_up()
+        return success
+
+    def clean_up(self) -> bool:
+        for row in range(4):
+            for col in range(4):
+                cell = self.cells[row * 4 + col]
+                if type(cell) == set and len(cell) == 1:
+                    self.cells[row * 4 + col] = cell.pop()
+                    return True
+        return False
 
     def solve(self) -> Result:
         result = Result.NO_SOLUTION
@@ -118,15 +145,13 @@ class Board(QObject):
                 if type(cell) == set:
                     orig_val = cell.copy()
 
-                    self.naked_single(row, col)
-                    self.naked_pairs(row, col)
-                    #self.hidden_single(row, col)
+                    # try solving cell with three methods
+                    made_progress = self.naked_single(row, col)
+                    made_progress |= self.naked_pairs(row, col)
+                    made_progress |= self.hidden_single(row, col)
 
-                    if len(cell) == 1:
-                        self.cells[row * 4 + col] = cell.pop()
-                        if orig_val != cell:
-                            made_progress = True
-                    elif len(cell) < len(orig_val):
+                    # anything changed (reduced options)?
+                    if cell  != orig_val:
                         made_progress = True
                     if made_progress:
                         self.change.emit()
@@ -184,8 +209,8 @@ class Board(QObject):
                     cell = self.cells[row * 4 + col]
                     if type(cell) == set:
                         self.naked_single(row, col)
-                        self.naked_pairs(row, col)
-                        self.hidden_single(row, col)
+                        # self.naked_pairs(row, col)
+                        # self.hidden_single(row, col)
             if self.is_solved():
                 result = Result.SOLVED
                 break

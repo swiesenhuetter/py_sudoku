@@ -1,4 +1,4 @@
-from board import Board
+from board import Board, Result
 from pytest import fixture
 
 def test_shape_4():
@@ -9,83 +9,48 @@ def test_shape_4():
 
 
 @fixture
-def difficult_board():
-    s1 = "12 4" \
+def one_two_board():
+    s1 = "12  " \
+         "21  " \
          "    " \
-         "3 2 " \
-         "2   "
+         "    "
     return Board.from_string(s1)
 
 
 def test_from_string():
-    board = Board.from_string("123456789" * 9)
-    assert board.rows[0] == list(range(1, 10))
-    assert board.rows[0] == board.rows[8]
+    board = Board.from_string("1234" * 4)
+    assert board.rows[0] == list(range(1, 5))
+    assert board.rows[0] == board.rows[1] == board.rows[2] == board.rows[3]
 
 
-def test_solve(difficult_board):
-    assert len(difficult_board.rows[0]) == 9
-    assert difficult_board.rows[0][4] == 5
-    assert difficult_board.rows[0][6] == 3
-    assert difficult_board.rows[0][0] == set(range(1, 10))
+def test_from_four_line(one_two_board):
+    assert len(one_two_board.rows[0]) == 4
+    assert len(one_two_board.columns[0]) == 4
 
-    difficult_board.solve()
-    print(f"\n{difficult_board}")
+    assert one_two_board.rows[0][0] == 1
+    assert one_two_board.rows[0][1] == 2
+    assert one_two_board.rows[1][1] == 1
+    assert one_two_board.rows[0][3] == set(range(1, 5))
 
-def test_locate_least_options(difficult_board):
-    row, col = difficult_board.locate_least_options()
-    assert len(difficult_board.rows[row][col]) == 9
-    difficult_board.solve()
-    row, col = difficult_board.locate_least_options()
-    assert len(difficult_board.rows[row][col]) == 2
+    one_two_board.solve()
+    print(f"\n{one_two_board}")
 
-def test_is_solved(simple_board):
-    assert not simple_board.is_solved()
-    simple_board.solve()
-    assert simple_board.is_solved()
+def test_solve_one_two(one_two_board):
+    result = one_two_board.solve()
+    assert result == Result.NO_PROGRESS
+    print(f"\n{one_two_board}")
 
-@fixture
-def simple_board():
-    s1 = "53-" "-7-" "---"\
-         "6--" "195" "---"\
-         "-98" "---" "-6-"\
-         "8--" "-6-" "--3"\
-         "4--" "8-3" "--1"\
-         "7--" "-2-" "--6"\
-         "-6-" "---" "28-"\
-         "---" "419" "--5"\
-         "---" "-8-" "-79"
-    return Board.from_string(s1)
+def test_naked_singles(one_two_board):
+    one_two_board.set_cell(0, 3, 4)
+    result = one_two_board.naked_single(0, 2)
+    assert result == True
+    assert one_two_board.get_cell(0, 3) == 4
+    assert one_two_board.get_cell(0, 2) == 3
 
-def test_solve_simple(simple_board):
-    assert len(simple_board.rows[0]) == 9
-    assert simple_board.rows[0][0] == 5
-    assert simple_board.rows[0][4] == 7
-    assert simple_board.rows[8][6] == set(range(1, 10))
+    resul12 = one_two_board.naked_single(1, 2)
+    assert resul12 == True
+    assert one_two_board.get_cell(1, 2) == 4
 
-    simple_board.solve()
-    print(f"\n{simple_board}")
-
-
-@fixture
-def arto_inkala_board():
-    s1 = "8--" "---" "---"\
-         "--3" "6--" "---"\
-         "-7-" "-9-" "2--"\
-         "-5-" "--7" "---"\
-         "---" "-45" "7--"\
-         "---" "1--" "-3-"\
-         "--1" "---" "-68"\
-         "--8" "5--" "-1-"\
-         "-9-" "---" "4--"
-    return Board.from_string(s1)
-
-def test_solve_inkala(arto_inkala_board):
-    arto_inkala_board.solve()
-    print(f"\n{arto_inkala_board}")
-
-    Board.back_tracking_solver(arto_inkala_board)
-    print(f"\n{arto_inkala_board}")
 
 def test_hidden_singles():
     empty_board = Board.from_string(" " * 81)
@@ -98,12 +63,15 @@ def test_hidden_singles():
     assert empty_board.cells[0] == 7
 
 def test_naked_pairs():
-    empty_board = Board.from_string(" " * 81)
+    empty_board = Board.from_string(" " * 16)
     result = empty_board.naked_pairs(0, 0)
     assert result == False
 
-    empty_board.cells[0] = {7, 8}
-    empty_board.cells[1] = {7, 8}
-    assert empty_board.naked_pairs(0, 0)
-    assert empty_board.cells[0] == {7, 8}
-    assert empty_board.cells[1] == {7, 8}
+    empty_board.cells[0] = {3, 4}
+    empty_board.cells[1] = {3, 4}
+    res2 = empty_board.naked_pairs(0, 2)
+    assert res2 == True
+    res3 = empty_board.naked_pairs(0, 3)
+    assert res3 == True
+    assert empty_board.get_cell(0, 2) == {1, 2}
+    assert empty_board.get_cell(0, 3) == {1, 2}
