@@ -13,7 +13,7 @@ class SudokuWidget(QWidget):
         super().__init__()
         self.setWindowTitle("Sudoku Solver")
         self.grid_layout = QGridLayout()
-        self.cells = [[None for _ in range(9)] for _ in range(9)]
+        self.cells = [[None for _ in range(4)] for _ in range(4)]
         self.board = Board()
         self.board.change.connect(self.update_ui)
         self.init_ui()
@@ -25,12 +25,12 @@ class SudokuWidget(QWidget):
 
     def init_ui(self):
         # Create Sudoku Grid
-        for row in range(9):
-            for col in range(9):
+        for row in range(4):
+            for col in range(4):
                 cell = QLineEdit()
                 cell.setFixedSize(40, 40)
                 cell.setAlignment(Qt.AlignCenter)
-                cell.setValidator(QIntValidator(1, 9))  # Only numbers 1–9
+                cell.setValidator(QIntValidator(1, 4))  # Only numbers 1–4
 
                 cell.editingFinished.connect(partial(self.on_edit_finished, row, col))
 
@@ -120,8 +120,8 @@ class SudokuWidget(QWidget):
 
     def update_ui(self):
         """Update the UI based on the model data."""
-        for row in range(9):
-            for col in range(9):
+        for row in range(4):
+            for col in range(4):
                 style = self.cells[row][col].styleSheet()
                 value = self.board.cells[row*9+col]
                 if type(value) == set:
