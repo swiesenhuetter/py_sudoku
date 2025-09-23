@@ -23,7 +23,7 @@ class Board(QObject):
         if cells:
             self.cells = cells
         else:
-            self.cells = [0] * 16
+            self.cells = [set((1,2,3,4))] * 16
 
     @classmethod
     def from_string(cls, string):

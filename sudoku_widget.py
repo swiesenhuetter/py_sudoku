@@ -21,7 +21,7 @@ class SudokuWidget(QWidget):
     def on_edit_finished(self, row, col):
         data = self.cells[row][col].text()
         print(f"Editing finished {row}, {col}, {data}")
-        self.board.cells[row*9+col] = int(data) if data else 0
+        self.board.cells[row*4+col] = int(data) if data else 0
 
     def init_ui(self):
         # Create Sudoku Grid
@@ -123,7 +123,7 @@ class SudokuWidget(QWidget):
         for row in range(4):
             for col in range(4):
                 style = self.cells[row][col].styleSheet()
-                value = self.board.cells[row*9+col]
+                value = self.board.cells[row*4+col]
                 if type(value) == set:
                     grey_level = 255 - len(value) * 20
                     bg_col = QColor(grey_level, grey_level, grey_level)
