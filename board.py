@@ -23,7 +23,7 @@ class Board(QObject):
         if cells:
             self.cells = cells
         else:
-            self.cells = [set((1,2,3,4))] * 16
+            self.cells = [{1, 2, 3, 4} for _ in range(16)]
 
     @classmethod
     def from_string(cls, string):
@@ -80,34 +80,34 @@ class Board(QObject):
 
     def naked_single(self, row: int, col: int):
         cell = self.cells[row * 4 + col]
-        cell -= {num for num in self.rows[row] if type(num) == int}
-        cell -= {num for num in self.columns[col] if type(num) == int}
+        line_found = {num for num in self.rows[row] if type(num) == int}
+        col_found = {num for num in self.columns[col] if type(num) == int}
+        cell -= line_found
+        cell -= col_found
 
     def naked_pairs(self, row: int, col: int):
-        try:
-            cell = set(self.cells[row * 4 + col])
-        except TypeError as err:
-            return False
-        if len(cell) != 2:
-            return False
-        self.cells[row * 4 + col] = None
-
-        result = False
-        if cell in self.rows[row]:
-            for c in self.rows[row]:
-                if c != cell and type(c) == set:
-                    c -= cell
-            result = True
-
-        if cell in self.columns[col]:
-            for c in self.columns[col]:
-                if c != cell and type(c) == set:
-                    c -= cell
-
-            result |= True
-
-        self.cells[row * 4 + col] = cell
-        return result
+        # does this line have 2 equal sets of size 2?
+        other_cells = [self.cells[row * 4 + c] for c in range(4) if c != col]
+        two_element_sets = [s for s in other_cells if type(s) == set and len(s) == 2]
+        two_equals = [s for s in two_element_sets if two_element_sets.count(s) > 1]
+        if two_equals:
+            #  remove these two numbers if possible
+            cell = self.cells[row * 4 + col]
+            for s in two_equals:
+                if type(cell) == set and len(cell) > 2:
+                    cell -= s
+            self.cells[row * 4 + col] = cell
+        # does this column have 2 equal sets of size 2?
+        other_cells = [self.cells[r * 4 + col] for r in range(4) if r != row]
+        two_element_sets = [s for s in other_cells if type(s) == set and len(s) == 2]
+        two_equals = [s for s in two_element_sets if two_element_sets.count(s) > 1]
+        if two_equals:
+            #  remove these two numbers if possible
+            cell = self.cells[row * 4 + col]
+            for s in two_equals:
+                if type(cell) == set and len(cell) > 2:
+                    cell -= s
+            self.cells[row * 4 + col] = cell
 
     def solve(self) -> Result:
         result = Result.NO_SOLUTION
@@ -120,7 +120,7 @@ class Board(QObject):
 
                     self.naked_single(row, col)
                     self.naked_pairs(row, col)
-                    self.hidden_single(row, col)
+                    #self.hidden_single(row, col)
 
                     if len(cell) == 1:
                         self.cells[row * 4 + col] = cell.pop()

@@ -11,7 +11,7 @@ from sudoku_print import generate_sudoku_html
 class SudokuWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Sudoku Solver")
+        self.setWindowTitle("4x4 Puzzle Solver")
         self.grid_layout = QGridLayout()
         self.cells = [[None for _ in range(4)] for _ in range(4)]
         self.board = Board()
